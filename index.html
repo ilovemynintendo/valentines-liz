@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Be Mine?</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .card {
+      background: #f8fafc;
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      max-width: 420px;
+      width: 90%;
+      animation: pop 0.6s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    h1 {
+      margin-bottom: 15px;
+      color: #1e3a8a;
+      font-size: 26px;
+    }
+
+    p {
+      color: #1f2933;
+      margin-bottom: 20px;
+    }
+
+    .gif {
+      width: 180px;
+      border-radius: 15px;
+      margin: 15px 0 25px;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #yesBtn {
+      background: #1e3a8a;
+      color: white;
+    }
+
+    #yesBtn:hover {
+      background: #172554;
+      transform: scale(1.05);
+    }
+
+    #noBtn {
+      background: #e5e7eb;
+      color: #111827;
+      position: relative;
+    }
+
+    #noBtn:hover {
+      background: #d1d5db;
+    }
+
+    .result {
+      display: none;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #1e3a8a;
+      font-weight: 600;
+    }
+
+    .hearts {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 22px;
+      animation: float 4s linear infinite;
+      opacity: 0.9;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) scale(1); opacity: 0; }
+      20% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1.4); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="card">
+    <h1>Will You Be My Valentine?</h1>
+
+    <!-- Main / Changing GIF -->
+    <img 
+      id="mainGif"
+      src="https://media.giphy.com/media/sIIhZliB2McAo/giphy.gif"
+      alt="main gif" 
+      class="gif"
+    >
+
+    <p id="mainText">Would you be willing to become my valentine? <3</p>
+
+    <div class="buttons" id="buttons">
+      <button id="yesBtn">Yes <33</button>
+      <button id="noBtn">No</button>
+    </div>
+
+    <div class="result" id="result">
+      <p>yayy!!</p>
+
+      <!-- Happy GIF -->
+      <img 
+        src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3lxNXBiczMwc2pxZ2JlODh1eXBocDI1cHE2ZnJicmNuYjJ0NmZ6MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IzXiddo2twMmdmU8Lv/giphy.gif"
+        alt="happy gif" 
+        class="gif"
+      >
+    </div>
+  </div>
+
+  <div class="hearts" id="hearts"></div>
+
+  <script>
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const result = document.getElementById("result");
+    const buttons = document.getElementById("buttons");
+    const heartsContainer = document.getElementById("hearts");
+    const mainGif = document.getElementById("mainGif");
+    const mainText = document.getElementById("mainText");
+
+    let noCount = 0;
+    let sadMode = false;
+
+    // Working GIFs
+    const sadGif = "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjU4d2EyaXgxNzV6ZnJpN3ZxejNxMmNvdWl0bG44ejh1NnFmYWN5MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/eKfpB6WZeKC1DiGrj8/giphy.gif"; // Milk & Mocha sad
+    const normalGif = "https://media.giphy.com/media/sIIhZliB2McAo/giphy.gif";
+
+    // When YES is clicked
+    yesBtn.addEventListener("click", () => {
+      // Hide everything else
+      document.getElementById("mainGif").style.display = "none";
+      document.getElementById("mainText").style.display = "none";
+      document.querySelector("h1").style.display = "none";
+      buttons.style.display = "none";
+
+      // Show only result
+      result.style.display = "block";
+      startHearts();
+
+      localStorage.setItem("valentineAnswer", "yes");
+      console.log("They clicked YES 💙");
+    });
+
+    // NO button behavior (never stops)
+    noBtn.addEventListener("mouseover", () => {
+      noCount++;
+
+      const x = Math.random() * (window.innerWidth - 150);
+      const y = Math.random() * (window.innerHeight - 100);
+
+      noBtn.style.position = "fixed";
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+
+      // After 3 tries: sad mode
+      if (noCount >= 3 && !sadMode) {
+        sadMode = true;
+        mainGif.src = sadGif;
+        mainText.textContent = "why are you trying to say no </33?";
+      }
+
+      localStorage.setItem("valentineNoTries", noCount);
+    });
+
+    function startHearts() {
+      setInterval(createHeart, 250);
+    }
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.classList.add("heart");
+      heart.innerHTML = "🫀";
+
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.fontSize = Math.random() * 20 + 18 + "px";
+      heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+
+      heartsContainer.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 5000);
+    }
+
+    // Check stored answer (for you)
+    const savedAnswer = localStorage.getItem("valentineAnswer");
+    if (savedAnswer) {
+      console.log("Saved answer:", savedAnswer);
+    }
+  </script>
+
+</body>
+</html>
